@@ -1,0 +1,18 @@
+{% extends 'users/detail.html' %}
+
+{% block user_details %}
+  <div class="col-sm-9">
+    <div class="row">
+
+      {% for message in user.likes %}
+
+      <li class="list-group-item">
+        <a href="/messages/{{ message.id }}" class="message-link"> {{message.text}} </a>
+      </li>
+
+      {% endfor %}
+
+    </div>
+  </div>
+
+{% endblock %}

@@ -56,3 +56,52 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+        self.assertEqual(u.__repr__(),f"<User #{u.id}: {u.username}, {u.email}>")
+
+    def test_user_follow_methods(self):
+        """Does following logic work?"""
+
+        u1 = User(
+            email="test@test.com",
+            username="testuser",
+            password="HASHED_PASSWORD"
+        )
+
+        u2 = User(
+            email="test2@test.com",
+            username="testuser2",
+            password="HASHED_PASSWORD2"
+        )
+
+        u1.following.append(u2)
+
+        db.session.add(u1,u2)
+        db.session.commit()
+
+
+        self.assertTrue(u1.is_following(u2))
+        self.assertTrue(u2.is_followed_by(u1))
+
+        u1.following.remove(u2)
+        db.session.commit()
+
+        self.assertFalse(u1.is_following(u2))
+        self.assertFalse(u2.is_followed_by(u1))
+
+
+    def test_user_creation_methods(self):
+        """Does creating user work?"""
+
+        u = User.signup("testuser","test@test.com","secret123", User.image_url.default.arg)
+        self.assertIsInstance(u,User)
+        self.assertRaises(TypeError,User.signup,"testuser","secret123", User.image_url.default.arg)
+    
+
+    def test_user_authentication(self):
+        """Does authenticatig user work?"""
+        User.signup("kidist","test@test.com","myPass123", User.image_url.default.arg)
+        u = User.authenticate("kidist","myPass123")
+        self.assertIsInstance(u,User)
+        self.assertFalse(User.authenticate("kidist","myPass12"))
+        self.assertFalse(User.authenticate("kidis","myPass123"))
+
